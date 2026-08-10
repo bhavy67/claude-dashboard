@@ -1,6 +1,6 @@
 {
-  "name": "@bhavy67/claude-dashboard",
-  "version": "1.0.2",
+  "name": "claude-usage-stats",
+  "version": "1.0.0",
   "private": false,
   "description": "A stunning dashboard for Claude Code session analytics and conversation browsing",
   "keywords": [
@@ -26,7 +26,7 @@
   "type": "module",
   "main": "index.js",
   "bin": {
-    "claude-dashboard": "bin/claude-dash.js"
+    "claude-usage-stats": "bin/claude-dash.js"
   },
   "files": [
     "dist/",

@@ -172,3 +172,19 @@ export function fetchCacheStats(): Promise<CacheStats> {
 export function fetchSessionLengthTrends(): Promise<{ weeks: SessionLengthPoint[] }> {
   return fetchJSON(`${BASE}/stats/session-length`);
 }
+
+export interface SearchMatch {
+  messageId: string;
+  role: string;
+  snippet: string;
+}
+
+export interface SearchResult {
+  session: SessionSummary;
+  matchCount: number;
+  matches: SearchMatch[];
+}
+
+export function fetchSearch(q: string): Promise<{ results: SearchResult[]; query: string }> {
+  return fetchJSON(`${BASE}/search?q=${encodeURIComponent(q)}`);
+}

@@ -10,6 +10,7 @@ import { overviewRouter } from './routes/overview.js';
 import { sessionsRouter } from './routes/sessions.js';
 import { statsRouter } from './routes/stats.js';
 import { projectsRouter } from './routes/projects.js';
+import { searchRouter } from './routes/search.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -28,6 +29,7 @@ export async function startServer(port: number): Promise<void> {
   app.use('/api/sessions', sessionsRouter);
   app.use('/api/stats', statsRouter);
   app.use('/api/projects', projectsRouter);
+  app.use('/api/search', searchRouter);
 
   // In production, serve Vite build
   // __dirname is either server/ (dev via tsx) or dist-server/server/ (production)

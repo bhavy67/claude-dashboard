@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, MessageSquare, FolderGit2, LayoutGrid, Sun, Moon, BarChart2 } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, FolderGit2, LayoutGrid, Sun, Moon, BarChart2, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -15,6 +15,7 @@ const navItems = [
   { to: '/sessions', icon: MessageSquare, label: 'Sessions' },
   { to: '/projects', icon: FolderGit2, label: 'Projects' },
   { to: '/analytics', icon: BarChart2, label: 'Analytics' },
+  { to: '/search', icon: Search, label: 'Search' },
 ];
 
 export function Sidebar() {

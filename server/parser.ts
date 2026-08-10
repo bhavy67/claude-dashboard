@@ -107,6 +107,18 @@ export interface CacheStats {
   cacheHitRate: number;
 }
 
+export interface SearchMatch {
+  messageId: string;
+  role: string;
+  snippet: string;
+}
+
+export interface SearchResult {
+  session: SessionSummary;
+  matchCount: number;
+  matches: SearchMatch[];
+}
+
 export interface SessionLengthPoint {
   date: string;
   avgDurationMinutes: number;
@@ -1065,4 +1077,45 @@ export function getSessionLengthTrends(): SessionLengthPoint[] {
     .map(([date, s]) => ({ date, avgDurationMinutes: Math.round(s.total / s.count), count: s.count }))
     .sort((a, b) => a.date.localeCompare(b.date))
     .slice(-24);
+}
+
+// ── Global search ──────────────────────────────────────────────────
+
+export function searchSessions(query: string): SearchResult[] {
+  const q = query.trim().toLowerCase();
+  if (q.length < 2) return [];
+
+  const results: SearchResult[] = [];
+
+  for (const session of sessions.values()) {
+    const matches: SearchMatch[] = [];
+
+    for (const msg of session.messages) {
+      if (msg.isMeta || !msg.content) continue;
+      const lower = msg.content.toLowerCase();
+      const idx = lower.indexOf(q);
+      if (idx === -1) continue;
+
+      const start = Math.max(0, idx - 80);
+      const end = Math.min(msg.content.length, idx + q.length + 80);
+      const snippet =
+        (start > 0 ? '…' : '') +
+        msg.content.slice(start, end).replace(/\n+/g, ' ') +
+        (end < msg.content.length ? '…' : '');
+
+      matches.push({ messageId: msg.id, role: msg.role, snippet });
+      if (matches.length >= 3) break; // max 3 snippets per session
+    }
+
+    if (matches.length === 0) continue;
+
+    // Also check title
+    const summary = sessionList.find(s => s.id === session.id);
+    if (!summary) continue;
+
+    results.push({ session: summary, matchCount: matches.length, matches });
+    if (results.length >= 30) break;
+  }
+
+  return results.sort((a, b) => b.matchCount - a.matchCount);
 }

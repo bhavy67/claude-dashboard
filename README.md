@@ -7,14 +7,14 @@ A dashboard for Claude Code session analytics and conversation browsing — toke
 Install globally, then run it anytime:
 
 ```bash
-npm install --location=global @bhavy67/claude-dashboard
-claude-dashboard
+npm install --location=global claude-usage-stats
+claude-usage-stats
 ```
 
 Or run it once without installing:
 
 ```bash
-npx @bhavy67/claude-dashboard
+npx claude-usage-stats
 ```
 
 Either way, this starts a local server and opens the dashboard in your browser automatically.
