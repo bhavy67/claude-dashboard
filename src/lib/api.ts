@@ -89,6 +89,7 @@ export interface DailyStats {
   date: string;
   sessions: number;
   tokens: number;
+  cost: number | null;
   models: string[];
 }
 

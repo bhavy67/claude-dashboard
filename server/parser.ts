@@ -106,6 +106,7 @@ export interface DailyStats {
   date: string;
   sessions: number;
   tokens: number;
+  cost: number | null;
   models: string[];
 }
 
@@ -878,13 +879,18 @@ export function getModelStats(): ModelStats[] {
 }
 
 export function getDailyStats(): DailyStats[] {
-  const dailyMap = new Map<string, { sessions: number; tokens: number; models: Set<string> }>();
+  const dailyMap = new Map<string, { sessions: number; tokens: number; cost: number | null; models: Set<string> }>();
 
   for (const session of sessionList) {
     const date = session.startedAt.slice(0, 10);
-    const existing = dailyMap.get(date) || { sessions: 0, tokens: 0, models: new Set<string>() };
+    const existing = dailyMap.get(date) || { sessions: 0, tokens: 0, cost: 0, models: new Set<string>() };
     existing.sessions++;
     existing.tokens += session.totalInputTokens + session.totalOutputTokens;
+    if (existing.cost !== null && session.estimatedCost !== null) {
+      existing.cost += session.estimatedCost;
+    } else if (session.estimatedCost === null) {
+      existing.cost = null;
+    }
     for (const model of session.models) {
       existing.models.add(model);
     }
@@ -896,6 +902,7 @@ export function getDailyStats(): DailyStats[] {
       date,
       sessions: stats.sessions,
       tokens: stats.tokens,
+      cost: stats.cost,
       models: Array.from(stats.models),
     }))
     .sort((a, b) => a.date.localeCompare(b.date));

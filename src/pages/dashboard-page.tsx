@@ -8,6 +8,8 @@ import { TokenUsageChart } from '@/components/dashboard/token-usage-chart';
 import { ModelDistribution } from '@/components/dashboard/model-distribution';
 import { DailyUsageChart } from '@/components/dashboard/daily-usage-chart';
 import { RecentSessions } from '@/components/dashboard/recent-sessions';
+import { ActivityHeatmap } from '@/components/dashboard/activity-heatmap';
+import { CostForecast } from '@/components/dashboard/cost-forecast';
 
 function formatTokens(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -87,6 +89,14 @@ export function DashboardPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <DailyUsageChart />
         <RecentSessions sessions={data?.recentActivity || []} />
+      </div>
+
+      {/* Forecast + Heatmap */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <CostForecast />
+        <div className="lg:col-span-2">
+          <ActivityHeatmap />
+        </div>
       </div>
     </div>
   );

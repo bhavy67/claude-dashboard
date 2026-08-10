@@ -4,6 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useApi } from '@/hooks/use-api';
 import { fetchProjects } from '@/lib/api';
 import { FolderGit2, MessageSquare, Zap, Clock, DollarSign } from 'lucide-react';
+import { ProjectCostChart } from '@/components/projects/project-cost-chart';
 
 function formatTokens(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -46,10 +47,15 @@ export function ProjectsPage() {
         </p>
       </div>
 
+      {/* Cost breakdown chart */}
+      {!loading && projects && projects.length > 0 && (
+        <ProjectCostChart projects={projects} />
+      )}
+
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-[160px] rounded-xl" />
+            <Skeleton key={i} className="h-[180px] rounded-xl" />
           ))}
         </div>
       ) : !projects || projects.length === 0 ? (
@@ -58,56 +64,60 @@ export function ProjectsPage() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <Card
-              key={project.path}
-              className="cursor-pointer transition-all hover:shadow-md hover:border-primary/30"
-              onClick={() => navigate(`/sessions?project=${encodeURIComponent(project.path)}`)}
-            >
-              <CardContent className="p-5">
-                <div className="flex items-start gap-3">
-                  <div className="rounded-lg bg-primary/10 p-2.5">
-                    <FolderGit2 className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="truncate text-sm font-semibold">{project.name}</h3>
-                    <p className="truncate text-xs text-muted-foreground">{project.path}</p>
-                  </div>
-                </div>
+          {projects.map((project) => {
+            const avgCost =
+              project.totalCost !== null && project.sessionCount > 0
+                ? project.totalCost / project.sessionCount
+                : null;
 
-                <div className="mt-4 grid grid-cols-4 gap-2">
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
-                      <MessageSquare className="h-3 w-3" />
+            return (
+              <Card
+                key={project.path}
+                className="cursor-pointer transition-all hover:shadow-md hover:border-primary/30"
+                onClick={() => navigate(`/sessions?project=${encodeURIComponent(project.path)}`)}
+              >
+                <CardContent className="p-5">
+                  <div className="flex items-start gap-3">
+                    <div className="rounded-lg bg-primary/10 p-2.5 shrink-0">
+                      <FolderGit2 className="h-5 w-5 text-primary" />
                     </div>
-                    <p className="text-sm font-semibold">{project.sessionCount}</p>
-                    <p className="text-[10px] text-muted-foreground">Sessions</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
-                      <Zap className="h-3 w-3" />
+                    <div className="min-w-0 flex-1">
+                      <h3 className="truncate text-sm font-semibold">{project.name}</h3>
+                      <p className="truncate text-xs text-muted-foreground">{project.path}</p>
                     </div>
-                    <p className="text-sm font-semibold">{formatTokens(project.totalTokens)}</p>
-                    <p className="text-[10px] text-muted-foreground">Tokens</p>
                   </div>
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
-                      <DollarSign className="h-3 w-3" />
+
+                  <div className="mt-4 grid grid-cols-4 gap-2 text-center">
+                    <div>
+                      <MessageSquare className="h-3 w-3 mx-auto text-muted-foreground mb-0.5" />
+                      <p className="text-sm font-semibold">{project.sessionCount}</p>
+                      <p className="text-[10px] text-muted-foreground">Sessions</p>
                     </div>
-                    <p className="text-sm font-semibold">{formatCost(project.totalCost)}</p>
-                    <p className="text-[10px] text-muted-foreground">Cost</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
+                    <div>
+                      <Zap className="h-3 w-3 mx-auto text-muted-foreground mb-0.5" />
+                      <p className="text-sm font-semibold">{formatTokens(project.totalTokens)}</p>
+                      <p className="text-[10px] text-muted-foreground">Tokens</p>
                     </div>
-                    <p className="text-sm font-semibold">{timeAgo(project.lastActive)}</p>
-                    <p className="text-[10px] text-muted-foreground">Last Active</p>
+                    <div>
+                      <DollarSign className="h-3 w-3 mx-auto text-muted-foreground mb-0.5" />
+                      <p className="text-sm font-semibold">{formatCost(project.totalCost)}</p>
+                      <p className="text-[10px] text-muted-foreground">Total</p>
+                    </div>
+                    <div>
+                      <Clock className="h-3 w-3 mx-auto text-muted-foreground mb-0.5" />
+                      <p className="text-sm font-semibold">{formatCost(avgCost)}</p>
+                      <p className="text-[10px] text-muted-foreground">Avg/session</p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+
+                  <div className="mt-3 border-t border-border pt-3 flex items-center justify-between">
+                    <span className="text-[11px] text-muted-foreground">Last active</span>
+                    <span className="text-[11px] text-muted-foreground">{timeAgo(project.lastActive)}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
