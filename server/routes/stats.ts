@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getTokenSeries, getModelStats, getDailyStats } from '../parser.js';
+import { getTokenSeries, getModelStats, getDailyStats, getHourlyStats, getToolStats, getCacheStats, getSessionLengthTrends } from '../parser.js';
 
 const router = Router();
 
@@ -17,6 +17,22 @@ router.get('/models', (_req, res) => {
 router.get('/daily', (_req, res) => {
   const days = getDailyStats();
   res.json({ days });
+});
+
+router.get('/hourly', (_req, res) => {
+  res.json(getHourlyStats());
+});
+
+router.get('/tools', (_req, res) => {
+  res.json({ tools: getToolStats() });
+});
+
+router.get('/cache', (_req, res) => {
+  res.json(getCacheStats());
+});
+
+router.get('/session-length', (_req, res) => {
+  res.json({ weeks: getSessionLengthTrends() });
 });
 
 export { router as statsRouter };

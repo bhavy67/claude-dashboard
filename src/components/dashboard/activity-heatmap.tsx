@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, type CSSProperties } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useApi } from '@/hooks/use-api';
@@ -6,12 +6,11 @@ import { fetchDailyStats } from '@/lib/api';
 
 type Cell = { date: string; count: number; isFuture: boolean };
 
-function intensityClass(count: number): string {
-  if (count === 0) return 'bg-border';
-  if (count === 1) return 'bg-primary/25';
-  if (count <= 3) return 'bg-primary/50';
-  if (count <= 6) return 'bg-primary/75';
-  return 'bg-primary';
+function cellStyle(count: number, max: number, isFuture: boolean): CSSProperties {
+  if (isFuture) return { opacity: 0 };
+  if (count === 0 || max === 0) return { backgroundColor: 'var(--color-border)' };
+  const opacity = 0.18 + (count / max) * 0.82;
+  return { backgroundColor: 'var(--color-primary)', opacity };
 }
 
 export function ActivityHeatmap() {
@@ -96,10 +95,8 @@ export function ActivityHeatmap() {
                       <div
                         key={di}
                         title={cell.isFuture ? undefined : `${cell.date} — ${cell.count} session${cell.count !== 1 ? 's' : ''}`}
-                        className={[
-                          'h-[13px] w-[13px] rounded-[3px] cursor-default',
-                          cell.isFuture ? 'opacity-0' : intensityClass(cell.count),
-                        ].join(' ')}
+                        className="h-[13px] w-[13px] rounded-[3px] cursor-default"
+                        style={cellStyle(cell.count, maxCount, cell.isFuture)}
                       />
                     ))}
                   </div>
@@ -110,7 +107,7 @@ export function ActivityHeatmap() {
               <div className="flex items-center gap-[3px] self-end">
                 <span className="text-[9px] text-muted-foreground mr-1">Less</span>
                 {[0, 1, 2, 4, 7].map((n) => (
-                  <div key={n} className={`h-[13px] w-[13px] rounded-[3px] ${intensityClass(n)}`} />
+                  <div key={n} className="h-[13px] w-[13px] rounded-[3px]" style={cellStyle(n, Math.max(maxCount, 7), false)} />
                 ))}
                 <span className="text-[9px] text-muted-foreground ml-1">More</span>
                 {maxCount > 0 && (

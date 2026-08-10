@@ -11,9 +11,11 @@ interface SessionListProps {
   loading: boolean;
   projects: string[];
   initialProjectFilter?: string;
+  bookmarkedIds?: Set<string>;
+  onToggleBookmark?: (id: string) => void;
 }
 
-export function SessionList({ sessions, loading, projects, initialProjectFilter }: SessionListProps) {
+export function SessionList({ sessions, loading, projects, initialProjectFilter, bookmarkedIds, onToggleBookmark }: SessionListProps) {
   const [search, setSearch] = useState('');
   const [projectFilter, setProjectFilter] = useState(initialProjectFilter || 'all');
 
@@ -72,7 +74,12 @@ export function SessionList({ sessions, loading, projects, initialProjectFilter 
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((session) => (
-            <SessionCard key={session.id} session={session} />
+            <SessionCard
+              key={session.id}
+              session={session}
+              isBookmarked={bookmarkedIds?.has(session.id)}
+              onToggleBookmark={onToggleBookmark}
+            />
           ))}
         </div>
       )}

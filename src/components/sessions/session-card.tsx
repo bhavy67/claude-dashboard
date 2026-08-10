@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { type SessionSummary } from '@/lib/api';
-import { MessageSquare, Clock, Activity } from 'lucide-react';
+import { MessageSquare, Clock, Activity, Bookmark } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 function timeAgo(dateStr: string): string {
   const now = new Date();
@@ -26,9 +27,11 @@ function formatTokens(n: number): string {
 
 interface SessionCardProps {
   session: SessionSummary;
+  isBookmarked?: boolean;
+  onToggleBookmark?: (id: string) => void;
 }
 
-export function SessionCard({ session }: SessionCardProps) {
+export function SessionCard({ session, isBookmarked, onToggleBookmark }: SessionCardProps) {
   const navigate = useNavigate();
 
   return (
@@ -44,12 +47,23 @@ export function SessionCard({ session }: SessionCardProps) {
               {session.project.split('/').pop() || session.project}
             </p>
           </div>
-          {session.isActive && (
-            <Badge variant="default" className="shrink-0 bg-green-500/15 text-green-600 dark:text-green-400 text-[10px] h-4 px-1.5">
-              <Activity className="mr-1 h-2.5 w-2.5" />
-              Live
-            </Badge>
-          )}
+          <div className="flex items-center gap-1 shrink-0">
+            {session.isActive && (
+              <Badge variant="default" className="bg-green-500/15 text-green-600 dark:text-green-400 text-[10px] h-4 px-1.5">
+                <Activity className="mr-1 h-2.5 w-2.5" />
+                Live
+              </Badge>
+            )}
+            {onToggleBookmark && (
+              <button
+                onClick={e => { e.stopPropagation(); onToggleBookmark(session.id); }}
+                className="p-0.5 rounded text-muted-foreground hover:text-primary transition-colors"
+                title={isBookmarked ? 'Remove bookmark' : 'Bookmark session'}
+              >
+                <Bookmark className={cn('h-3.5 w-3.5', isBookmarked && 'fill-primary text-primary')} />
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-1.5">

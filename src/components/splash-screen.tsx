@@ -17,7 +17,7 @@ export function SplashScreen({ onFinish }: { onFinish: () => void }) {
   return (
     <div
       style={{
-        transition: 'opacity 750ms ease',
+        transition: 'opacity 1500ms ease',
         opacity: phase === 'out' ? 0 : 1,
       }}
       className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black gap-3"
@@ -28,7 +28,7 @@ export function SplashScreen({ onFinish }: { onFinish: () => void }) {
           opacity: phase === 'in' ? 0 : 1,
           transform: phase === 'in' ? 'translateY(8px)' : 'translateY(0)',
           fontFamily: 'inherit',
-          fontSize: '3.5rem',
+          fontSize: '5.5rem',
           fontWeight: 700,
           letterSpacing: '0.15em',
           color: '#fff',
@@ -40,7 +40,7 @@ export function SplashScreen({ onFinish }: { onFinish: () => void }) {
         style={{
           transition: 'opacity 600ms ease 100ms',
           opacity: phase === 'in' ? 0 : 1,
-          fontSize: '0.75rem',
+          fontSize: '2.00rem',
           letterSpacing: '0.3em',
           textTransform: 'uppercase',
           color: '#666',

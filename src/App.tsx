@@ -6,6 +6,7 @@ import { DashboardPage } from '@/pages/dashboard-page';
 import { SessionsPage } from '@/pages/sessions-page';
 import { SessionDetailPage } from '@/pages/session-detail-page';
 import { ProjectsPage } from '@/pages/projects-page';
+import { AnalyticsPage } from '@/pages/analytics-page';
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -20,6 +21,7 @@ export default function App() {
             <Route path="sessions" element={<SessionsPage />} />
             <Route path="sessions/:id" element={<SessionDetailPage />} />
             <Route path="projects" element={<ProjectsPage />} />
+            <Route path="analytics" element={<AnalyticsPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

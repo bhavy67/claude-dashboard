@@ -68,8 +68,31 @@ export interface OverviewStats {
   totalProjects: number;
   activeSessions: number;
   totalCost: number | null;
+  currentMonthCost: number | null;
   topModels: { model: string; count: number; totalTokens: number }[];
   recentActivity: SessionSummary[];
+}
+
+export interface HourlyStats {
+  grid: number[][];
+}
+
+export interface ToolStat {
+  name: string;
+  count: number;
+}
+
+export interface CacheStats {
+  cacheReadTokens: number;
+  cacheCreateTokens: number;
+  totalInputTokens: number;
+  cacheHitRate: number;
+}
+
+export interface SessionLengthPoint {
+  date: string;
+  avgDurationMinutes: number;
+  count: number;
 }
 
 export interface TokenSeries {
@@ -132,4 +155,20 @@ export function fetchModelStats(): Promise<{ models: ModelStats[] }> {
 
 export function fetchDailyStats(): Promise<{ days: DailyStats[] }> {
   return fetchJSON(`${BASE}/stats/daily`);
+}
+
+export function fetchHourlyStats(): Promise<HourlyStats> {
+  return fetchJSON(`${BASE}/stats/hourly`);
+}
+
+export function fetchToolStats(): Promise<{ tools: ToolStat[] }> {
+  return fetchJSON(`${BASE}/stats/tools`);
+}
+
+export function fetchCacheStats(): Promise<CacheStats> {
+  return fetchJSON(`${BASE}/stats/cache`);
+}
+
+export function fetchSessionLengthTrends(): Promise<{ weeks: SessionLengthPoint[] }> {
+  return fetchJSON(`${BASE}/stats/session-length`);
 }

@@ -85,8 +85,32 @@ export interface OverviewStats {
   totalProjects: number;
   activeSessions: number;
   totalCost: number | null;
+  currentMonthCost: number | null;
   topModels: { model: string; count: number; totalTokens: number }[];
   recentActivity: SessionSummary[];
+}
+
+export interface HourlyStats {
+  // grid[dayOfWeek][hour] — Mon=0, Sun=6; hour 0-23
+  grid: number[][];
+}
+
+export interface ToolStat {
+  name: string;
+  count: number;
+}
+
+export interface CacheStats {
+  cacheReadTokens: number;
+  cacheCreateTokens: number;
+  totalInputTokens: number;
+  cacheHitRate: number;
+}
+
+export interface SessionLengthPoint {
+  date: string;
+  avgDurationMinutes: number;
+  count: number;
 }
 
 export interface TokenSeries {
@@ -944,13 +968,101 @@ export function getOverview(): OverviewStats {
 
   const recentActivity = sessionList.slice(0, 10);
 
+  const now = new Date();
+  const monthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  let currentMonthCost: number | null = 0;
+  for (const session of sessionList) {
+    if (session.startedAt.startsWith(monthPrefix)) {
+      if (session.estimatedCost === null) {
+        currentMonthCost = null;
+        break;
+      }
+      currentMonthCost = (currentMonthCost ?? 0) + session.estimatedCost;
+    }
+  }
+
   return {
     totalSessions,
     totalTokens,
     totalProjects,
     activeSessions,
     totalCost,
+    currentMonthCost,
     topModels,
     recentActivity,
   };
+}
+
+// ── Analytics stats ────────────────────────────────────────────────
+
+export function getHourlyStats(): HourlyStats {
+  const grid: number[][] = Array.from({ length: 7 }, () => new Array(24).fill(0));
+  for (const session of sessionList) {
+    const d = new Date(session.startedAt);
+    const day = (d.getDay() + 6) % 7; // Mon=0 … Sun=6
+    const hour = d.getHours();
+    grid[day][hour]++;
+  }
+  return { grid };
+}
+
+export function getToolStats(): ToolStat[] {
+  const toolMap = new Map<string, number>();
+  for (const session of sessions.values()) {
+    for (const msg of session.messages) {
+      for (const tc of msg.toolCalls || []) {
+        toolMap.set(tc.name, (toolMap.get(tc.name) ?? 0) + 1);
+      }
+    }
+  }
+  return Array.from(toolMap.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 15);
+}
+
+export function getCacheStats(): CacheStats {
+  let cacheReadTokens = 0;
+  let cacheCreateTokens = 0;
+  let totalInputTokens = 0;
+  for (const s of sessionList) {
+    cacheReadTokens += s.totalCacheReadTokens;
+    cacheCreateTokens += s.totalCacheCreateTokens;
+    totalInputTokens += s.totalInputTokens;
+  }
+  const cacheable = cacheReadTokens + cacheCreateTokens;
+  return {
+    cacheReadTokens,
+    cacheCreateTokens,
+    totalInputTokens,
+    cacheHitRate: cacheable > 0 ? cacheReadTokens / cacheable : 0,
+  };
+}
+
+export function getSessionLengthTrends(): SessionLengthPoint[] {
+  const weekMap = new Map<string, { total: number; count: number }>();
+  for (const session of sessionList) {
+    const start = new Date(session.startedAt);
+    const end = new Date(session.lastActiveAt);
+
+    // Skip sessions with unparseable timestamps
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) continue;
+
+    const mins = (end.getTime() - start.getTime()) / 60000;
+    if (mins <= 0 || mins > 1440) continue; // skip zero-length and >24h sessions
+
+    // Monday of the week
+    const monday = new Date(start);
+    monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+    const key = monday.toISOString().slice(0, 10);
+
+    const existing = weekMap.get(key) ?? { total: 0, count: 0 };
+    existing.total += mins;
+    existing.count++;
+    weekMap.set(key, existing);
+  }
+  return Array.from(weekMap.entries())
+    .map(([date, s]) => ({ date, avgDurationMinutes: Math.round(s.total / s.count), count: s.count }))
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(-24);
 }
