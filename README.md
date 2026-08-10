@@ -1,42 +1,43 @@
-<p align="center">
-  <img src="./resources/logo.png" alt="Claude Dash logo" width="120" />
-</p>
+# Claude Dashboard
 
-# Claude Dash
-
-A stunning dashboard for Claude Code session analytics and conversation browsing — token usage, cost tracking, model distribution, and session history, all in one local dashboard.
-
-![Claude Dash screenshot](./resources/img.png)
+A dashboard for Claude Code session analytics and conversation browsing — token usage, cost tracking, model distribution, activity heatmaps, and session history, all in one local app.
 
 ## Usage
 
-Install globally, then run it anytime with a short command:
+Install globally, then run it anytime:
 
 ```bash
-npm install --location=global @bhavy67/claude-dashboardboard
+npm install --location=global @bhavy67/claude-dashboard
 claude-dashboard
 ```
 
 Or run it once without installing:
 
 ```bash
-npx @bhavy67/claude-dashboardboard
+npx @bhavy67/claude-dashboard
 ```
 
 Either way, this starts a local server and opens the dashboard in your browser automatically.
 
 ## Features
 
-- **Dashboard overview** — total sessions, tokens, estimated cost, active projects, and models used at a glance
-- **Token usage over time** — visualize input/output token consumption across 7 days, 30 days, or all time
-- **Model distribution** — see which Claude models you're using and how often
-- **Daily sessions** — track session activity day by day
-- **Recent sessions** — quickly jump into recent conversations with per-session cost and token breakdowns
-- **Project browsing** — explore usage broken down by project
+- **Dashboard** — total sessions, tokens, estimated cost, active projects, and models at a glance
+- **Cost forecast** — projected monthly spend based on your current usage rate
+- **Activity heatmap** — 52-week GitHub-style grid of your session activity
+- **Analytics** — hourly usage patterns, tool call frequency, cache efficiency, session length trends
+- **Token usage charts** — input/output token consumption over 7 days, 30 days, or all time
+- **Model distribution** — see which Claude models you use and how often
+- **Project breakdown** — usage and cost ranked by project
+- **Session browser** — search and filter all your Claude Code sessions
+- **Global search** — full-text search across all conversation content
+- **Bookmarks** — pin sessions for quick access
+- **Budget alerts** — set a monthly spend limit with live progress tracking
+- **CSV export** — download your session data
+- **Dark / light mode** — toggle from the sidebar
 
 ## How it works
 
-Claude Dash reads your local Claude Code session data and serves it through a lightweight local server — nothing leaves your machine.
+Claude Dashboard reads your local Claude Code session data (`~/.claude/projects/`) and serves it through a lightweight local server — nothing leaves your machine.
 
 ## License
 
